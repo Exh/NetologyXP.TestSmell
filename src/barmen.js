@@ -6,7 +6,7 @@ class Barmen {
 
     pour(drink, volume) {
         if (volume < 0) {
-            throw new Error('Invalid volume of whisky');
+            throw new Error('Invalid volume of ' + drink);
         }
         if (volume > 200) {
             throw new Error('There is no such glass');

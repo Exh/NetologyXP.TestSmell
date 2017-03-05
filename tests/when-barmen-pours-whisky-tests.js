@@ -3,82 +3,88 @@ var expect = require('chai').expect;
 var Barmen = require('../src/barmen');
 var Visitor = require('../src/visitor');
 var ImageDownloader = require('../src/image-downloader');
-var fs = require('fs');
-var username = require('username');
+// var fs = require('fs');
+// var username = require('username');
 
 suite('when barmen pours whisky', function () {
     let barmen = new Barmen();
     let me = new Visitor();
     let imageDownloader = new ImageDownloader();
 
-    setup(function (done) {
-        this.timeout(20000);
+    setup(function () {
         me.sober();
-
-        imageDownloader.download('http://www.rosa-obs.com/images/ccd/M31_karel_full.jpg',
-            'mycar.jpg', function () {
-                var car = me.getMyCar("mycar.jpg");
-                me.goToBar(car);
-                barmen.free();
-
-                done();
-            });
+        barmen.free();
     });
 
     suite('i ask 50 grams', function () {
-        test('I get and drink whisky', function (done) {
-            fs.readFile('whisky.jpg', function (err, whisky) {
-                if (err) {
-                    done(err);
-                }
+          test('I get 50 ml whisky', function () {
+            var iAskVolume = 50;
 
-                var iAskVolume = 50;
+            var volumeInGlass = barmen.pour("whisky", iAskVolume);
 
-                var volumeInGlass = barmen.pour(whisky, iAskVolume);
-                me.drink(volumeInGlass);
+            assert.equal(iAskVolume, volumeInGlass);
+        });
 
-                assert.equal(iAskVolume, volumeInGlass);
-                assert.equal(false, me.isDrunk());
-                assert.equal(50, me.getTotallyDrunk());
+        test('I drink 50 ml whisky', function () {
+            var iAskVolume = 50;
+            var volumeInGlass = barmen.pour("whisky", iAskVolume);
 
-                done();
-            });
+            me.drink(volumeInGlass);
+
+            assert.equal(50, me.getTotallyDrunk());
+        });
+
+        test('i`ll not become drunk after 50 ml whisky', function () {
+            var iAskVolume = 50;
+            var volumeInGlass = barmen.pour("whisky", iAskVolume);
+            me.drink(volumeInGlass);
+
+            assert.equal(false, me.isDrunk());
         });
     });
 
+    suite('i ask 180 grams', function () {
+        test('I get 180 ml vodka', function () {
+            var iAskVolume = 180;
+
+            var volumeInGlass = barmen.pour("vodka", iAskVolume);
+
+            assert.equal(iAskVolume, volumeInGlass);
+        });
+
+        test('I drink 180 ml vodka', function () {
+            var iAskVolume = 180;
+            var volumeInGlass = barmen.pour("vodka", iAskVolume);
+
+            me.drink(volumeInGlass);
+
+            assert.equal(180, me.getTotallyDrunk());
+        });
+
+        test('i`ll become drunk after 50 ml vodka', function () {
+            var iAskVolume = 180;
+            var volumeInGlass = barmen.pour("vodka", iAskVolume);
+            me.drink(volumeInGlass);
+
+            assert.equal(true, me.isDrunk());
+        });
+    });
+
+
+
     suite('i ask -10 grams', function () {
-        test('I get an error', function (done) {
-            fs.readFile('whisky.jpg', function (err, whisky) {
-                if (err) {
-                    done(err);
-                }
+        test('I get an error', function () {
+            var iAskVolume = -10;
 
-                var iAskVolume = -10;
-
-                expect(() => barmen.pour(whisky, iAskVolume)).to.throw(/Invalid volume of whisky/);
-                done();
-            });
+            expect(() => barmen.pour("whisky", iAskVolume)).to.throw(/Invalid volume of whisky/);
         });
     });
 
     suite('i ask 500 grams', function () {
-        test('Barmen said there is no such glass', function (done) {
+        test('Barmen said there is no such glass', function () {
+            var iAskVolume = 500;
 
-            username().then(un => {
-                console.log(un);
-
-                if (un === "dpavlov") {
-                    var iAskVolume = 500;
-                    var whisky = 1;
-
-                    expect(() => barmen.pour(whisky, iAskVolume)).to.throw(/There is no such glass/);
-                    done();
-
-                    return;
-                }
-
-                done();
-            });
+            expect(() => barmen.pour("whisky", iAskVolume)).to.throw(/There is no such glass/);
         })
     });
 
